@@ -68,6 +68,8 @@ class TellStick:
 		return ctypes.util.find_library("TelldusCore") and not self.library == None
 	
 	def UnLoadLibrary(self):
+		if(self.IsLibraryLoaded()):
+			self.library.dlclose(self.library._handle)
 		del self.library
 		self.library = None
 		

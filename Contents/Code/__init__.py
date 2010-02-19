@@ -84,6 +84,7 @@ def loadTelldusCore():
 	p = Prefs.Get('tellduscore_path')
 	global TSLib
 	if(TSLib):
+		TSLib.UnLoadLibrary()
 		del TSLib
 	
 	TSLib = tellstick.TellStick(p)
@@ -91,7 +92,6 @@ def loadTelldusCore():
 	return TSLib.LoadLibrary()
 
 def ApplicationsMainMenu():
-
 		dir = MediaContainer(viewGroup="InfoList", noCache=True)
 		if(not loadTelldusCore()):
 			dir.Append(
