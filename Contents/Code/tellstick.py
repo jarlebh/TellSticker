@@ -13,6 +13,9 @@
 # Changelog:
 # ------------------------------------------------------------------------------
 #
+# Version 0.6 (19th of February, 2010)
+# - Have to reload the TelldusCore library every time we show the main menu (unfortunately9 to know if there are new or deleted devices
+# 
 # Version 0.5 (16th of February, 2010)
 # - Hopefully fixes some navigational problems; http://forums.plexapp.com/index.php?/topic/12490-tellsticker-a-tellstick-plug-in/page__view__findpost__p__77053
 # - Fixed weird "undo" behaviour; http://forums.plexapp.com/index.php?/topic/12490-tellsticker-a-tellstick-plug-in/page__view__findpost__p__77105
