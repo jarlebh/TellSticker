@@ -7,11 +7,14 @@
 # ------------------------------------------------------------------------------
 #
 #
-# TellSticker version 0.5 (16th of February, 2010)
+# TellSticker version 0.6b (15th of October, 2010)
 #
 # ------------------------------------------------------------------------------
 # Changelog:
 # ------------------------------------------------------------------------------
+#
+# Version 0.6b (15th of October, 2010)
+# - Try to support Plex/Nine
 #
 # Version 0.6 (19th of February, 2010)
 # - Have to reload the TelldusCore library every time we show the main menu (unfortunately9 to know if there are new or deleted devices
@@ -33,12 +36,6 @@
 # Version 0.1
 # - Initial version
 # - Able to turn devices on or off
-
-
-# PMS plugin framework
-from PMS import *
-from PMS.Objects import *
-from PMS.Shortcuts import *
 
 # Import Tellstick class definition from tellstick.py:
 import tellstick
@@ -84,7 +81,7 @@ def ValidatePrefs():
 		)
 
 def loadTelldusCore():
-	p = Prefs.Get('tellduscore_path')
+	p = Prefs['tellduscore_path']
 	global TSLib
 	if(TSLib):
 		TSLib.UnLoadLibrary()
