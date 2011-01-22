@@ -7,14 +7,14 @@
 # ------------------------------------------------------------------------------
 #
 #
-# TellSticker version 0.6b (15th of October, 2010)
+# TellSticker version 0.7 (22th of January, 2011)
 #
 # ------------------------------------------------------------------------------
 # Changelog:
 # ------------------------------------------------------------------------------
 #
-# Version 0.6b (15th of October, 2010)
-# - Try to support Plex/Nine
+# Version 0.7 (22th of January, 2011)
+# - Make it work on Plex/Nine
 #
 # Version 0.6 (19th of February, 2010)
 # - Have to reload the TelldusCore library every time we show the main menu (unfortunately9 to know if there are new or deleted devices
@@ -37,24 +37,24 @@
 # - Initial version
 # - Able to turn devices on or off
 
+
 # Import Tellstick class definition from tellstick.py:
+
 import tellstick
 
 ####################################################################################################
 
 APPLICATIONS_PREFIX = "/applications/tellsticker"
 
-NAME = L('Title')
-
-ART           = 'art-default.png'
-ICON          = 'icon-default.png'
-TSLib         = None
+NAME  = "TellSticker"
+ART   = "art-default.jpg"
+ICON  = "icon-default.png"
 
 ####################################################################################################
 
 def Start():
 
-    Plugin.AddPrefixHandler(APPLICATIONS_PREFIX, ApplicationsMainMenu, L('ApplicationsTitle'), ICON, ART)
+    Plugin.AddPrefixHandler(APPLICATIONS_PREFIX, ApplicationsMainMenu, NAME, ICON, ART)
 
     Plugin.AddViewGroup("InfoList", viewMode="InfoList", mediaType="items")
     Plugin.AddViewGroup("List", viewMode="List", mediaType="items")
@@ -64,9 +64,6 @@ def Start():
     MediaContainer.art = R(ART)
     MediaContainer.title1 = NAME
     DirectoryItem.thumb = R(ICON)
-
-def CreatePrefs():
-    Prefs.Add(id='tellduscore_path', type='text', default='/Library/Frameworks/TelldusCore.framework/Versions/Current/TelldusCore', label='Location of TelldusCore library')
 
 def ValidatePrefs():
 		if(loadTelldusCore()):
@@ -82,14 +79,12 @@ def ValidatePrefs():
 
 def loadTelldusCore():
 	p = Prefs['tellduscore_path']
-	global TSLib
-	if(TSLib):
-		TSLib.UnLoadLibrary()
-		del TSLib
+	if(Dict['TSLib']):
+		Dict['TSLib'].UnLoadLibrary()
+		del Dict['TSLib']
+	Dict['TSLib'] = tellstick.TellStick(p)
 	
-	TSLib = tellstick.TellStick(p)
-	
-	return TSLib.LoadLibrary()
+	return Dict['TSLib'].LoadLibrary()
 
 def ApplicationsMainMenu():
 		dir = MediaContainer(viewGroup="InfoList", noCache=True)
@@ -103,8 +98,8 @@ def ApplicationsMainMenu():
 				)
 			)
 		else:
-			global TSLib
-			controls = TSLib.GetDevices()
+			controls = Dict['TSLib'].GetDevices()
+			
 			if(controls):
 				for c_item in controls:
 					dir.Append(getDirItem(c_item))
@@ -130,9 +125,8 @@ def ApplicationsMainMenu():
 		return dir
 
 def getDirItem(item):
-	global TSLib
-	str_state = TSLib.GetDeviceStatusAsString(item[0])
-	features = TSLib.GetDeviceFeatures(item[0])
+	str_state = Dict['TSLib'].GetDeviceStatusAsString(item[0])
+	features = Dict['TSLib'].GetDeviceFeatures(item[0])
 	
 	if(features & tellstick.TELLSTICK_DIM):
 		diritem = PopupDirectoryItem(
@@ -171,46 +165,43 @@ def getDirItem(item):
 							thumb=R('icon-off.png'),
 							art=R(ART)
 						)
-	return Function(diritem, status = item[2], listitem = diritem)
+	return Function(diritem, status = item[2], subtitle = diritem.subtitle, summary = diritem.summary)
 								
-def switchDevice(sender, status, listitem):
-	global TSLib
+def switchDevice(sender, status, subtitle, summary):
 	
 	if(status == tellstick.TELLSTICK_TURNOFF):
-		retval = TSLib.TurnOn(TSLib.GetDeviceIdFromName(sender.itemTitle))
+		retval = Dict['TSLib'].TurnOn(Dict['TSLib'].GetDeviceIdFromName(sender.itemTitle))
 	elif (status == tellstick.TELLSTICK_TURNON):
-		retval = TSLib.TurnOff(TSLib.GetDeviceIdFromName(sender.itemTitle))
+		retval = Dict['TSLib'].TurnOff(Dict['TSLib'].GetDeviceIdFromName(sender.itemTitle))
 	else:
 		retval = tellstick.TELLSTICK_ERROR_UNKNOWN
 	
 	if(retval != tellstick.TELLSTICK_SUCCESS):
 		return MessageContainer(
 			"TellStick Error:",
-			TSLib.GetErrorString(retval)
+			Dict['TSLib'].GetErrorString(retval)
 		)
 	
-	setStatus(reverseStatus(TSLib.GetDeviceStatusAsString(sender.itemTitle)),listitem)
+	setStatus(reverseStatus(Dict['TSLib'].GetDeviceStatusAsString(sender.itemTitle)),listitem)
 	
-def bellDevice(sender, status, listitem):
-	global TSLib
+def bellDevice(sender, status, subtitle, summary):
 	
-	retval = TSLib.Bell(TSLib.GetDeviceIdFromName(sender.itemTitle))
+	retval = Dict['TSLib'].Bell(Dict['TSLib'].GetDeviceIdFromName(sender.itemTitle))
 		
 	if(retval != tellstick.TELLSTICK_SUCCESS):
 		return MessageContainer(
 			"TellStick Error:",
-			TSLib.GetErrorString(retval)
+			Dict['TSLib'].GetErrorString(retval)
 		)
 
-def doNothing(sender, status, listitem):
+def doNothing(sender, status, subtitle, summary):
 	return 0
 
 def showDimMenu(sender,status,listitem):
 	dir = MediaContainer(viewGroup="InfoList", noCache=True)
 
-	global TSLib
-	itemid = TSLib.GetDeviceIdFromName(sender.itemTitle)
-	item = TSLib.GetDevice(itemid)
+	itemid = Dict['TSLib'].GetDeviceIdFromName(sender.itemTitle)
+	item = Dict['TSLib'].GetDevice(itemid)
 	
 	# ON SWITCH
 	diritem = PopupDirectoryItem(
@@ -242,25 +233,24 @@ def showDimMenu(sender,status,listitem):
 	return dir
 	
 def handleDimMenu(sender,id,action, level = 0):
-	global TSLib
 	if (action & tellstick.TELLSTICK_TURNON):
-		retval = TSLib.TurnOn(id)
+		retval = Dict['TSLib'].TurnOn(id)
 	elif (action & tellstick.TELLSTICK_TURNOFF):
-		retval = TSLib.TurnOff(id)
+		retval = Dict['TSLib'].TurnOff(id)
 	elif (action & tellstick.TELLSTICK_DIM):
-		retval = TSLib.Dim(id,level)
+		retval = Dict['TSLib'].Dim(id,level)
 	else:
 		retval = tellstick.TELLSTICK_ERROR_UNKOWN
 	
 	if(retval != tellstick.TELLSTICK_SUCCESS):
 		return MessageContainer(
 			"TellStick Error:",
-			TSLib.GetErrorString(retval)
+			Dict['TSLib'].GetErrorString(retval)
 		)
 
-def setStatus(status, listitem):
-	listitem.subtitle = status.upper()
-	listitem.summary = "Device status: " + status.upper()
+def setStatus(status, subtitle, summary):
+	subtitle = status.upper()
+	summary = "Device status: " + status.upper()
 	thumb=R('icon-' + status.lower() + '.png')
 	
 def reverseStatus(curStatus):
