@@ -7,14 +7,14 @@
 # ------------------------------------------------------------------------------
 #
 #
-# TellSticker version 0.6 (15th of October, 2010)
+# TellSticker version 0.7 (22th of January, 2011)
 #
 # ------------------------------------------------------------------------------
 # Changelog:
 # ------------------------------------------------------------------------------
 #
-# Version 0.6b (15th of October, 2010)
-# - Try to support Plex/Nine
+# Version 0.7 (22th of January, 2011)
+# - Make it work on Plex/Nine
 #
 # Version 0.6 (19th of February, 2010)
 # - Have to reload the TelldusCore library every time we show the main menu (unfortunately9 to know if there are new or deleted devices
@@ -37,6 +37,7 @@
 # - Initial version
 # - Able to turn devices on or off
 
+
 import ctypes
 from ctypes import *
 from ctypes.util import find_library
@@ -45,7 +46,7 @@ TELLSTICK_TURNON 		= 1
 TELLSTICK_TURNOFF		= 2
 TELLSTICK_BELL			= 4
 TELLSTICK_TOGGLE		= 8
-TELLSTICK_DIM			= 16
+TELLSTICK_DIM				= 16
 
 TELLSTICK_SUCCESS		= 0
 TELLSTICK_ERROR_UNKNOWN = -99
