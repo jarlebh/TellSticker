@@ -1,0 +1,8 @@
+[
+  {
+    "id":"tellduscore_path",
+    "label":"Location of TelldusCore library",
+    "type":"text",
+    "default":"/Library/Frameworks/TelldusCore.framework/Versions/Current/TelldusCore"
+  }
+]
